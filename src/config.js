@@ -1,2 +1,2 @@
 export const GOOGLE_AUTH_REDIRECT =
-  "http://localhost:8080/auth/google/callback";
+  "http://localhost:3000/auth/google";

@@ -3,6 +3,7 @@ import { GOOGLE_AUTH_REDIRECT } from "../config";
 const LoginFailed = () => {
   const googleLogin = () => {
     window.location.href = GOOGLE_AUTH_REDIRECT;
+    navigate('/blogs');
   };
   return (
     <main className="h-screen w-full flex justify-center items-center bg-black">

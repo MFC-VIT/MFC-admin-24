@@ -1,10 +1,16 @@
+import { useEffect } from "react";
 import { GrGoogle } from "react-icons/gr";
 import { GOOGLE_AUTH_REDIRECT } from "../config";
 
 const Login = () => {
+  // Function to initiate Google login
   const googleLogin = () => {
     window.location.href = GOOGLE_AUTH_REDIRECT;
   };
+
+  // Check for JWT token in the URL and set it in local storage
+  
+
   return (
     <main className="h-screen w-full flex justify-center items-center bg-black">
       <div className="flex flex-col items-center rounded-xl border-gray-900 w-[600px] p-6 px-10 gap-5 text-white bg-gray-800">
@@ -17,7 +23,7 @@ const Login = () => {
         </button>
       </div>
     </main>
-  )
-}
+  );
+};
 
-export default Login
+export default Login;

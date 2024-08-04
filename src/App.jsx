@@ -3,6 +3,7 @@ import Home from "./pages/Home";
 import LoginFailed from "./pages/LoginFailed";
 import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
+import Blogs from "./pages/Blogs";
 
 function App() {
   return (
@@ -10,6 +11,7 @@ function App() {
       <Routes>
         <Route path="/" element={<LoginRoutes />} />
         <Route path="/home" element={<Home />} />
+        <Route path="/blogs" element={<Blogs/>}/>
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
