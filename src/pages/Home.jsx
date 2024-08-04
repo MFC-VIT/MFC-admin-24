@@ -1,15 +1,23 @@
 import axios from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import Modal from "react-modal";
 
 const Home = () => {
   const navigate = useNavigate();
   const [blogs, setBlogs] = useState([]);
-  const [loading, setLoading] = useState(true); // Add a loading state
+  const [loading, setLoading] = useState(true);
+  const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [isEditing, setIsEditing] = useState(false); // State to track if we're editing
+  const [currentBlogId, setCurrentBlogId] = useState(null); // State to track the current blog ID being edited
+  const [newBlog, setNewBlog] = useState({
+    title: "",
+    authorName: "",
+    body: "",
+  });
 
   const getUserData = async () => {
     try {
-      // Fetch user data from the login success endpoint
       const userResponse = await axios.get(
         "http://localhost:3000/login/success",
         {
@@ -19,15 +27,9 @@ const Home = () => {
 
       const { token, user } = userResponse.data;
 
-      // Save token and user info in localStorage
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
 
-      console.log(
-        "Login successful, token and user data saved in localStorage"
-      );
-
-      // Fetch blogs from the blogs API
       const blogsResponse = await axios.get(
         "http://localhost:3000/api/v1/blogs",
         {
@@ -35,25 +37,23 @@ const Home = () => {
         }
       );
 
-      // Set the blogs state with the fetched blogs
       setBlogs(blogsResponse.data);
-      setLoading(false); // Set loading to false after data is fetched
+      setLoading(false);
     } catch (error) {
       console.error("Error fetching data", error);
-      navigate("/login"); // Redirect to login if there's an error
+      navigate("/login");
     }
   };
 
   const handleDelete = async (blogId) => {
     try {
       const user = JSON.parse(localStorage.getItem("user"));
-      const token = localStorage.getItem("token")
+      const token = localStorage.getItem("token");
       if (!user) {
         console.error("User not found in localStorage");
         return;
       }
 
-      // Make DELETE request to the API
       await axios.delete(
         `http://localhost:3000/api/v1/blogs/${user._id}/${blogId}`,
         {
@@ -63,14 +63,72 @@ const Home = () => {
         }
       );
 
-      // Remove the deleted blog from the state
       setBlogs((prevBlogs) => prevBlogs.filter((blog) => blog._id !== blogId));
-
-      // Show success alert
       alert("Blog deleted successfully");
     } catch (error) {
       console.error("Error deleting blog", error);
     }
+  };
+
+  const handleCreateBlog = async () => {
+    try {
+      const user = JSON.parse(localStorage.getItem("user"));
+      const token = localStorage.getItem("token");
+
+      if (!user) {
+        console.error("User not found in localStorage");
+        return;
+      }
+
+      if (isEditing) {
+        // If we're editing, make an update request
+        await axios.put(
+          `http://localhost:3000/api/v1/blogs/${user._id}/${currentBlogId}`,
+          newBlog,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        setBlogs((prevBlogs) =>
+          prevBlogs.map((blog) =>
+            blog._id === currentBlogId ? { ...blog, ...newBlog } : blog
+          )
+        );
+      } else {
+        // Otherwise, create a new blog
+        const newBlogResponse = await axios.post(
+          `http://localhost:3000/api/v1/blogs/${user._id}`,
+          newBlog,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        setBlogs([...blogs, newBlogResponse.data]);
+      }
+
+      setModalIsOpen(false);
+      setIsEditing(false);
+      setNewBlog({ title: "", authorName: "", body: "" }); // Reset blog state
+    } catch (error) {
+      console.error("Error creating/updating blog", error);
+    }
+  };
+
+  const openEditModal = (blog) => {
+    setIsEditing(true);
+    setCurrentBlogId(blog._id);
+    setNewBlog({
+      title: blog.title,
+      authorName: blog.authorName,
+      body: blog.body,
+    });
+    setModalIsOpen(true);
   };
 
   useEffect(() => {
@@ -78,30 +136,103 @@ const Home = () => {
   }, []);
 
   if (loading) {
-    return <div>Loading...</div>; // Show a loading indicator while data is being fetched
+    return <div>Loading...</div>;
   }
 
   return (
-    <div className="p-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
-      {blogs.map((blog) => (
-        <div
-          key={blog._id}
-          className="border rounded-lg shadow-lg p-5 bg-white"
+    <div>
+      <div className="flex justify-end p-5">
+        <button
+          onClick={() => {
+            setIsEditing(false);
+            setNewBlog({ title: "", authorName: "", body: "" });
+            setModalIsOpen(true);
+          }}
+          className="bg-blue-500 text-white py-2 px-4 rounded-full hover:bg-blue-700"
         >
-          <h2 className="text-2xl font-bold mb-2">{blog.title}</h2>
-          <p className="text-sm text-gray-600 mb-1">By {blog.authorName}</p>
-          <p className="text-sm text-gray-500 mb-3">
-            {new Date(blog.autheredDate).toLocaleDateString()}
-          </p>
-          <p className="text-gray-800">{blog.body}</p>
+          Create Blog
+        </button>
+      </div>
+
+      <Modal
+        isOpen={modalIsOpen}
+        onRequestClose={() => setModalIsOpen(false)}
+        contentLabel="Create Blog Modal"
+        className="fixed inset-0 bg-gray-700 bg-opacity-50 flex items-center justify-center"
+      >
+        <div className="bg-white p-8 rounded shadow-lg w-full max-w-md">
+          <h2 className="text-2xl font-bold mb-4">
+            {isEditing ? "Edit Blog" : "Create a New Blog"}
+          </h2>
+          <input
+            type="text"
+            placeholder="Title"
+            value={newBlog.title}
+            onChange={(e) => setNewBlog({ ...newBlog, title: e.target.value })}
+            className="mb-3 p-2 border border-gray-300 rounded w-full"
+          />
+          <input
+            type="text"
+            placeholder="Author Name"
+            value={newBlog.authorName}
+            onChange={(e) =>
+              setNewBlog({ ...newBlog, authorName: e.target.value })
+            }
+            className="mb-3 p-2 border border-gray-300 rounded w-full"
+          />
+          <textarea
+            placeholder="Body"
+            value={newBlog.body}
+            onChange={(e) => setNewBlog({ ...newBlog, body: e.target.value })}
+            className="mb-3 p-2 border border-gray-300 rounded w-full"
+          />
           <button
-            onClick={() => handleDelete(blog._id)}
-            className="mt-4 bg-red-500 text-white py-2 px-4 rounded hover:bg-red-700"
+            onClick={handleCreateBlog}
+            className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700 mr-2"
           >
-            Delete
+            {isEditing ? "Update Blog" : "Create Blog"}
+          </button>
+          <button
+            onClick={() => setModalIsOpen(false)}
+            className="bg-gray-500 text-white py-2 px-4 rounded hover:bg-gray-700"
+          >
+            Cancel
           </button>
         </div>
-      ))}
+      </Modal>
+
+      <div className="p-5 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+        {blogs.map((blog) => (
+          <div
+            key={blog._id}
+            className="border rounded-lg shadow-lg p-5 bg-white"
+          >
+            <h2 className="text-2xl font-bold mb-2">{blog.title}</h2>
+            <p className="text-sm text-gray-600 mb-1">By {blog.authorName}</p>
+            <p className="text-sm text-gray-500 mb-3">
+              {new Date(blog.autheredDate).toLocaleDateString()}
+            </p>
+            <p className="text-gray-800">
+              {blog.body.split(" ").slice(0, 50).join(" ")}
+              {blog.body.split(" ").length > 50 && "..."}
+            </p>
+            <div className="flex justify-between">
+              <button
+                onClick={() => handleDelete(blog._id)}
+                className="mt-4 bg-red-500 text-white py-2 px-4 rounded hover:bg-red-700"
+              >
+                Delete
+              </button>
+              <button
+                onClick={() => openEditModal(blog)}
+                className="mt-4 bg-yellow-500 text-white py-2 px-4 rounded hover:bg-yellow-700"
+              >
+                Edit
+              </button>
+            </div>
+          </div>
+        ))}
+      </div>
     </div>
   );
 };
