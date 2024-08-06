@@ -2,14 +2,16 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Modal from "react-modal";
+import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Home = () => {
   const navigate = useNavigate();
   const [blogs, setBlogs] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalIsOpen, setModalIsOpen] = useState(false);
-  const [isEditing, setIsEditing] = useState(false); // State to track if we're editing
-  const [currentBlogId, setCurrentBlogId] = useState(null); // State to track the current blog ID being edited
+  const [isEditing, setIsEditing] = useState(false);
+  const [currentBlogId, setCurrentBlogId] = useState(null);
   const [newBlog, setNewBlog] = useState({
     title: "",
     authorName: "",
@@ -24,7 +26,6 @@ const Home = () => {
           withCredentials: true,
         }
       );
-
       const { token, user } = userResponse.data;
 
       localStorage.setItem("token", token);
@@ -41,18 +42,35 @@ const Home = () => {
       setLoading(false);
     } catch (error) {
       console.error("Error fetching data", error);
-      navigate("/login");
+      navigate("/");
     }
   };
+
+  const handleLogout = async () => {
+    try {
+      const response = await axios.get("http://localhost:3000/logout", {
+        withCredentials: true,
+      });
+      console.log(response);
+      if (response.status === 200) {
+        localStorage.clear()
+        navigate("/");
+      } else {
+        console.error("Logout failed");
+      }
+    } catch (error) {
+      console.error("An error occurred during logout:", error);
+    }
+  };
+
+
+  
+  
 
   const handleDelete = async (blogId) => {
     try {
       const user = JSON.parse(localStorage.getItem("user"));
       const token = localStorage.getItem("token");
-      if (!user) {
-        console.error("User not found in localStorage");
-        return;
-      }
 
       await axios.delete(
         `http://localhost:3000/api/v1/blogs/${user._id}/${blogId}`,
@@ -64,9 +82,10 @@ const Home = () => {
       );
 
       setBlogs((prevBlogs) => prevBlogs.filter((blog) => blog._id !== blogId));
-      alert("Blog deleted successfully");
+      toast.success("Blog deleted successfully");
     } catch (error) {
       console.error("Error deleting blog", error);
+      toast.error("Error occurred while deleting");
     }
   };
 
@@ -75,13 +94,7 @@ const Home = () => {
       const user = JSON.parse(localStorage.getItem("user"));
       const token = localStorage.getItem("token");
 
-      if (!user) {
-        console.error("User not found in localStorage");
-        return;
-      }
-
       if (isEditing) {
-        // If we're editing, make an update request
         await axios.put(
           `http://localhost:3000/api/v1/blogs/${user._id}/${currentBlogId}`,
           newBlog,
@@ -98,7 +111,6 @@ const Home = () => {
           )
         );
       } else {
-        // Otherwise, create a new blog
         const newBlogResponse = await axios.post(
           `http://localhost:3000/api/v1/blogs/${user._id}`,
           newBlog,
@@ -114,9 +126,10 @@ const Home = () => {
 
       setModalIsOpen(false);
       setIsEditing(false);
-      setNewBlog({ title: "", authorName: "", body: "" }); // Reset blog state
+      setNewBlog({ title: "", authorName: "", body: "" });
     } catch (error) {
       console.error("Error creating/updating blog", error);
+      toast.error("Error occurred while creating/updating");
     }
   };
 
@@ -141,7 +154,13 @@ const Home = () => {
 
   return (
     <div>
-      <div className="flex justify-end p-5">
+      <div className="flex justify-between p-5">
+        <button
+          onClick={handleLogout}
+          className="bg-red-500 text-white py-2 px-4 rounded-full hover:bg-red-700"
+        >
+          Logout
+        </button>
         <button
           onClick={() => {
             setIsEditing(false);
