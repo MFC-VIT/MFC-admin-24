@@ -127,6 +127,7 @@ const Home = () => {
       setModalIsOpen(false);
       setIsEditing(false);
       setNewBlog({ title: "", authorName: "", body: "" });
+      toast.success("Blog created successfully");
     } catch (error) {
       console.error("Error creating/updating blog", error);
       toast.error("Error occurred while creating/updating");
