@@ -7,7 +7,9 @@ import "react-toastify/dist/ReactToastify.css";
 
 const Home = () => {
   const navigate = useNavigate();
+  // const user = JSON.parse(localStorage.getItem("user"));
   const [blogs, setBlogs] = useState([]);
+  const [User, setUser] = useState({});
   const [loading, setLoading] = useState(true);
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
@@ -29,7 +31,7 @@ const Home = () => {
       const { token, user } = userResponse.data;
 
       localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user));
+      // localStorage.setItem("user", JSON.stringify(user));
 
       const blogsResponse = await axios.get(
         "http://localhost:3000/api/v1/blogs",
@@ -37,7 +39,7 @@ const Home = () => {
           withCredentials: true,
         }
       );
-
+      setUser(user);
       setBlogs(blogsResponse.data);
       setLoading(false);
     } catch (error) {
@@ -69,11 +71,11 @@ const Home = () => {
 
   const handleDelete = async (blogId) => {
     try {
-      const user = JSON.parse(localStorage.getItem("user"));
+      // const user = JSON.parse(localStorage.getItem("user"));
       const token = localStorage.getItem("token");
 
       await axios.delete(
-        `http://localhost:3000/api/v1/blogs/${user._id}/${blogId}`,
+        `http://localhost:3000/api/v1/blogs/${User._id}/${blogId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -91,12 +93,13 @@ const Home = () => {
 
   const handleCreateBlog = async () => {
     try {
-      const user = JSON.parse(localStorage.getItem("user"));
+      // const user = JSON.parse(localStorage.getItem("user"));
       const token = localStorage.getItem("token");
+      console.log(User);
 
       if (isEditing) {
         await axios.put(
-          `http://localhost:3000/api/v1/blogs/${user._id}/${currentBlogId}`,
+          `http://localhost:3000/api/v1/blogs/${User._id}/${currentBlogId}`,
           newBlog,
           {
             headers: {
@@ -112,7 +115,7 @@ const Home = () => {
         );
       } else {
         const newBlogResponse = await axios.post(
-          `http://localhost:3000/api/v1/blogs/${user._id}`,
+          `http://localhost:3000/api/v1/blogs/${User._id}`,
           newBlog,
           {
             headers: {
@@ -162,16 +165,18 @@ const Home = () => {
         >
           Logout
         </button>
-        <button
-          onClick={() => {
-            setIsEditing(false);
-            setNewBlog({ title: "", authorName: "", body: "" });
-            setModalIsOpen(true);
-          }}
-          className="bg-blue-500 text-white py-2 px-4 rounded-full hover:bg-blue-700"
-        >
-          Create Blog
-        </button>
+        {User.isAdmin &&
+          <button
+            onClick={() => {
+              setIsEditing(false);
+              setNewBlog({ title: "", authorName: "", body: "" });
+              setModalIsOpen(true);
+            }}
+            className="bg-blue-500 text-white py-2 px-4 rounded-full hover:bg-blue-700"
+            >
+            Create Blog
+          </button>
+        }
       </div>
 
       <Modal
@@ -236,20 +241,22 @@ const Home = () => {
               {blog.body.split(" ").slice(0, 50).join(" ")}
               {blog.body.split(" ").length > 50 && "..."}
             </p>
-            <div className="flex justify-between">
-              <button
-                onClick={() => handleDelete(blog._id)}
-                className="mt-4 bg-red-500 text-white py-2 px-4 rounded hover:bg-red-700"
-              >
-                Delete
-              </button>
-              <button
-                onClick={() => openEditModal(blog)}
-                className="mt-4 bg-yellow-500 text-white py-2 px-4 rounded hover:bg-yellow-700"
-              >
-                Edit
-              </button>
-            </div>
+            {User.isAdmin && (
+              <div className="flex justify-between">
+                <button
+                  onClick={() => handleDelete(blog._id)}
+                  className="mt-4 bg-red-500 text-white py-2 px-4 rounded hover:bg-red-700"
+                  >
+                  Delete
+                </button>
+                <button
+                  onClick={() => openEditModal(blog)}
+                  className="mt-4 bg-yellow-500 text-white py-2 px-4 rounded hover:bg-yellow-700"
+                  >
+                  Edit
+                </button>
+              </div>
+            )}
           </div>
         ))}
       </div>
