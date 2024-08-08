@@ -5,6 +5,7 @@ import Login from "./pages/Login";
 import NotFound from "./pages/NotFound";
 import {ToastContainer} from "react-toastify"
 import "react-toastify/dist/ReactToastify.css"
+import Users from "./pages/Users";
 
 function App() {
   return (
@@ -14,7 +15,7 @@ function App() {
       <Routes>
         <Route path="/" element={<LoginRoutes />} />
         <Route path="/home" element={<Home />} />
-
+        <Route path="/users" element={<Users/>}/>
         <Route path="*" element={<NotFound />} />
       </Routes>
     </BrowserRouter>
