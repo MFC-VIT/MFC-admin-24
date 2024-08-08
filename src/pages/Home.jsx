@@ -18,6 +18,8 @@ const Home = () => {
     title: "",
     authorName: "",
     body: "",
+    imgLink: "",
+    mediumLink: "",
   });
 
   const getUserData = async () => {
@@ -55,7 +57,7 @@ const Home = () => {
       });
       console.log(response);
       if (response.status === 200) {
-        localStorage.clear()
+        localStorage.clear();
         navigate("/");
       } else {
         console.error("Logout failed");
@@ -64,10 +66,6 @@ const Home = () => {
       console.error("An error occurred during logout:", error);
     }
   };
-
-
-  
-  
 
   const handleDelete = async (blogId) => {
     try {
@@ -144,6 +142,8 @@ const Home = () => {
       title: blog.title,
       authorName: blog.authorName,
       body: blog.body,
+      imgLink: blog.imgLink || "",
+      mediumLink: blog.mediumLink || "",
     });
     setModalIsOpen(true);
   };
@@ -165,7 +165,7 @@ const Home = () => {
         >
           Logout
         </button>
-        {User.isAdmin &&
+        {User.isAdmin && (
           <button
             onClick={() => {
               setIsEditing(false);
@@ -173,10 +173,10 @@ const Home = () => {
               setModalIsOpen(true);
             }}
             className="bg-blue-500 text-white py-2 px-4 rounded-full hover:bg-blue-700"
-            >
+          >
             Create Blog
           </button>
-        }
+        )}
       </div>
 
       <Modal
@@ -211,6 +211,24 @@ const Home = () => {
             onChange={(e) => setNewBlog({ ...newBlog, body: e.target.value })}
             className="mb-3 p-2 border border-gray-300 rounded w-full"
           />
+          <input
+            type="text"
+            placeholder="Image Link"
+            value={newBlog.imgLink}
+            onChange={(e) =>
+              setNewBlog({ ...newBlog, imgLink: e.target.value })
+            }
+            className="mb-3 p-2 border border-gray-300 rounded w-full"
+          />
+          <input
+            type="text"
+            placeholder="Medium Article Link"
+            value={newBlog.mediumLink}
+            onChange={(e) =>
+              setNewBlog({ ...newBlog, mediumLink: e.target.value })
+            }
+            className="mb-3 p-2 border border-gray-300 rounded w-full"
+          />
           <button
             onClick={handleCreateBlog}
             className="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-700 mr-2"
@@ -237,22 +255,39 @@ const Home = () => {
             <p className="text-sm text-gray-500 mb-3">
               {new Date(blog.autheredDate).toLocaleDateString()}
             </p>
+            {blog.imgLink && (
+              <img
+                src={blog.imgLink}
+                alt={blog.title}
+                className="mb-3 w-full h-auto"
+              />
+            )}
             <p className="text-gray-800">
               {blog.body.split(" ").slice(0, 50).join(" ")}
               {blog.body.split(" ").length > 50 && "..."}
             </p>
+            {blog.mediumLink && (
+              <a
+                href={blog.mediumLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-500"
+              >
+                Read more on Medium
+              </a>
+            )}
             {User.isAdmin && (
               <div className="flex justify-between">
                 <button
                   onClick={() => handleDelete(blog._id)}
                   className="mt-4 bg-red-500 text-white py-2 px-4 rounded hover:bg-red-700"
-                  >
+                >
                   Delete
                 </button>
                 <button
                   onClick={() => openEditModal(blog)}
                   className="mt-4 bg-yellow-500 text-white py-2 px-4 rounded hover:bg-yellow-700"
-                  >
+                >
                   Edit
                 </button>
               </div>
