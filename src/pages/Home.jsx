@@ -3,7 +3,10 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Modal from "react-modal";
 import { toast } from "react-toastify";
+import DatePicker from "react-datepicker";
 import "react-toastify/dist/ReactToastify.css";
+import "react-datepicker/dist/react-datepicker.css";
+
 
 const Home = () => {
   const navigate = useNavigate();
@@ -14,12 +17,14 @@ const Home = () => {
   const [modalIsOpen, setModalIsOpen] = useState(false);
   const [isEditing, setIsEditing] = useState(false);
   const [currentBlogId, setCurrentBlogId] = useState(null);
+  const [startDate, setStartDate] = useState(new Date());
   const [newBlog, setNewBlog] = useState({
     title: "",
     authorName: "",
     body: "",
     imgLink: "",
     mediumLink: "",
+    autheredDate: new Date(startDate).toLocaleDateString("en-GB")
   });
 
   const getUserData = async () => {
@@ -127,7 +132,7 @@ const Home = () => {
 
       setModalIsOpen(false);
       setIsEditing(false);
-      setNewBlog({ title: "", authorName: "", body: "" });
+      setNewBlog({ title: "", authorName: "", body: "", autheredDate: new Date(startDate).toLocaleDateString("en-GB") });
       toast.success("Blog created successfully");
     } catch (error) {
       console.error("Error creating/updating blog", error);
@@ -144,6 +149,7 @@ const Home = () => {
       body: blog.body,
       imgLink: blog.imgLink || "",
       mediumLink: blog.mediumLink || "",
+      autheredDate: new Date(blog.autheredDate).toLocaleDateString("en-GB"),
     });
     setModalIsOpen(true);
   };
@@ -178,7 +184,7 @@ const Home = () => {
           </button>
         )}
       </div>
-
+      {/* Blog Create Modal */}
       <Modal
         isOpen={modalIsOpen}
         onRequestClose={() => setModalIsOpen(false)}
@@ -210,6 +216,14 @@ const Home = () => {
             value={newBlog.body}
             onChange={(e) => setNewBlog({ ...newBlog, body: e.target.value })}
             className="mb-3 p-2 border border-gray-300 rounded w-full"
+          />
+          <DatePicker 
+            selected={startDate} 
+            dateFormat={'dd/MM/yyyy'}
+            onChange={(date) => {
+              setStartDate(date)
+              setNewBlog({...newBlog, autheredDate: new Date(date).toLocaleDateString("en-GB") })
+            }} className="border-2 p-2 mb-3" 
           />
           <input
             type="text"
@@ -253,7 +267,7 @@ const Home = () => {
             <h2 className="text-2xl font-bold mb-2">{blog.title}</h2>
             <p className="text-sm text-gray-600 mb-1">By {blog.authorName}</p>
             <p className="text-sm text-gray-500 mb-3">
-              {new Date(blog.autheredDate).toLocaleDateString()}
+              {new Date(blog.autheredDate).toLocaleDateString("en-GB")}
             </p>
             {blog.imgLink && (
               <img
