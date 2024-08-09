@@ -99,7 +99,6 @@ const Home = () => {
       // const user = JSON.parse(localStorage.getItem("user"));
       const token = localStorage.getItem("token");
       console.log(User);
-
       if (isEditing) {
         await axios.put(
           `http://localhost:3000/api/v1/blogs/${User._id}/${currentBlogId}`,
@@ -223,7 +222,8 @@ const Home = () => {
             onChange={(date) => {
               setStartDate(date)
               setNewBlog({...newBlog, autheredDate: new Date(date).toLocaleDateString("en-GB") })
-            }} className="border-2 p-2 mb-3" 
+            }} 
+            className="border border-gray-300 p-2 mb-3 rounded-md"  
           />
           <input
             type="text"
@@ -267,7 +267,7 @@ const Home = () => {
             <h2 className="text-2xl font-bold mb-2">{blog.title}</h2>
             <p className="text-sm text-gray-600 mb-1">By {blog.authorName}</p>
             <p className="text-sm text-gray-500 mb-3">
-              {new Date(blog.autheredDate).toLocaleDateString("en-GB")}
+              {blog.autheredDate}
             </p>
             {blog.imgLink && (
               <img
