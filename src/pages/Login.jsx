@@ -1,11 +1,18 @@
 
 import { GrGoogle } from "react-icons/gr";
 import { GOOGLE_AUTH_REDIRECT } from "../config";
+import { useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 
 const Login = () => {
+  const navigate = useNavigate();
   const googleLogin = () => {
     window.location.href = GOOGLE_AUTH_REDIRECT;
   };
+  useEffect(()=>{
+    const token = localStorage.getItem("token");
+    if (token) navigate('/home');
+  }, [])
   return (
     <main className="h-screen w-full flex justify-center items-center bg-black">
       <div className="flex flex-col items-center rounded-xl border-gray-900 w-[600px] p-6 px-10 gap-5 text-white bg-gray-800">
