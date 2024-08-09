@@ -13,7 +13,8 @@ function App() {
     <ToastContainer/>
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<LoginRoutes />} />
+        <Route path="/" element={<Login />} />
+        <Route path="/failed" element={<LoginFailed />} />
         <Route path="/home" element={<Home />} />
         <Route path="/users" element={<Users/>}/>
         <Route path="*" element={<NotFound />} />
@@ -23,12 +24,5 @@ function App() {
   );
 }
 
-const LoginRoutes = () => (
-  <Routes>
-    <Route path="/" element={<Login />} />
-    <Route path="/failed" element={<LoginFailed />} />
-    <Route path="*" element={<NotFound />} />
-  </Routes>
-);
 
 export default App;
