@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 const Login = () => {
   const navigate = useNavigate();
   const googleLogin = () => {
-    window.location.href = import.meta.env.VITE_GOOGLE_AUTH_REDIRECT;
+    window.location.href = `${import.meta.env.VITE_GOOGLE_AUTH_REDIRECT}`;
   };
   useEffect(() => {
     const token = localStorage.getItem("token");
