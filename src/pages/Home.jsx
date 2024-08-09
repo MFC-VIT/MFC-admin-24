@@ -7,7 +7,6 @@ import DatePicker from "react-datepicker";
 import "react-toastify/dist/ReactToastify.css";
 import "react-datepicker/dist/react-datepicker.css";
 
-
 const Home = () => {
   const navigate = useNavigate();
   // const user = JSON.parse(localStorage.getItem("user"));
@@ -24,12 +23,12 @@ const Home = () => {
     body: "",
     imgLink: "",
     mediumLink: "",
-    autheredDate: new Date(startDate).toLocaleDateString("en-GB")
+    autheredDate: new Date(startDate).toLocaleDateString("en-GB"),
   });
   const getUserData = async () => {
     try {
       const userResponse = await axios.get(
-        "http://localhost:3000/login/success",
+        `${import.meta.env.VITE_BASE_URL}/login/success`,
         {
           withCredentials: true,
         }
@@ -40,7 +39,7 @@ const Home = () => {
       // localStorage.setItem("user", JSON.stringify(user));
 
       const blogsResponse = await axios.get(
-        "http://localhost:3000/api/v1/blogs",
+        `${import.meta.env.VITE_BASE_URL}/api/v1/blogs`,
         {
           withCredentials: true,
         }
@@ -56,9 +55,12 @@ const Home = () => {
 
   const handleLogout = async () => {
     try {
-      const response = await axios.get("http://localhost:3000/logout", {
-        withCredentials: true,
-      });
+      const response = await axios.get(
+        `${import.meta.env.VITE_BASE_URL}/logout`,
+        {
+          withCredentials: true,
+        }
+      );
       console.log(response);
       if (response.status === 200) {
         localStorage.clear();
@@ -77,7 +79,7 @@ const Home = () => {
       const token = localStorage.getItem("token");
 
       await axios.delete(
-        `http://localhost:3000/api/v1/blogs/${User._id}/${blogId}`,
+        `${import.meta.env.VITE_BASE_URL}/api/v1/blogs/${User._id}/${blogId}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
@@ -100,7 +102,9 @@ const Home = () => {
       console.log(User);
       if (isEditing) {
         await axios.put(
-          `http://localhost:3000/api/v1/blogs/${User._id}/${currentBlogId}`,
+          `${import.meta.env.VITE_BASE_URL}/api/v1/blogs/${
+            User._id
+          }/${currentBlogId}`,
           newBlog,
           {
             headers: {
@@ -116,7 +120,7 @@ const Home = () => {
         );
       } else {
         const newBlogResponse = await axios.post(
-          `http://localhost:3000/api/v1/blogs/${User._id}`,
+          `${import.meta.env.VITE_BASE_URL}/api/v1/blogs/${User._id}`,
           newBlog,
           {
             headers: {
@@ -130,7 +134,12 @@ const Home = () => {
 
       setModalIsOpen(false);
       setIsEditing(false);
-      setNewBlog({ title: "", authorName: "", body: "", autheredDate: new Date(startDate).toLocaleDateString("en-GB") });
+      setNewBlog({
+        title: "",
+        authorName: "",
+        body: "",
+        autheredDate: new Date(startDate).toLocaleDateString("en-GB"),
+      });
       toast.success("Blog created successfully");
     } catch (error) {
       console.error("Error creating/updating blog", error);
@@ -173,7 +182,12 @@ const Home = () => {
           <button
             onClick={() => {
               setIsEditing(false);
-              setNewBlog({ title: "", authorName: "", body: "", autheredDate: new Date(startDate).toLocaleDateString("en-GB") });
+              setNewBlog({
+                title: "",
+                authorName: "",
+                body: "",
+                autheredDate: new Date(startDate).toLocaleDateString("en-GB"),
+              });
               setModalIsOpen(true);
             }}
             className="bg-blue-500 text-white py-2 px-4 rounded-full hover:bg-blue-700"
@@ -215,14 +229,17 @@ const Home = () => {
             onChange={(e) => setNewBlog({ ...newBlog, body: e.target.value })}
             className="mb-3 p-2 border border-gray-300 rounded w-full"
           />
-          <DatePicker 
-            selected={startDate} 
-            dateFormat={'dd/MM/yyyy'}
+          <DatePicker
+            selected={startDate}
+            dateFormat={"dd/MM/yyyy"}
             onChange={(date) => {
-              setStartDate(date)
-              setNewBlog({...newBlog, autheredDate: new Date(date).toLocaleDateString("en-GB") })
-            }} 
-            className="border border-gray-300 p-2 mb-3 rounded-md"  
+              setStartDate(date);
+              setNewBlog({
+                ...newBlog,
+                autheredDate: new Date(date).toLocaleDateString("en-GB"),
+              });
+            }}
+            className="border border-gray-300 p-2 mb-3 rounded-md"
           />
           <input
             type="text"
@@ -265,9 +282,7 @@ const Home = () => {
           >
             <h2 className="text-2xl font-bold mb-2">{blog.title}</h2>
             <p className="text-sm text-gray-600 mb-1">By {blog.authorName}</p>
-            <p className="text-sm text-gray-500 mb-3">
-              {blog.autheredDate}
-            </p>
+            <p className="text-sm text-gray-500 mb-3">{blog.autheredDate}</p>
             {blog.imgLink && (
               <img
                 src={blog.imgLink}

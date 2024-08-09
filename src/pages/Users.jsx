@@ -13,35 +13,40 @@ const UserList = () => {
   // Fetch the current user's data
   const getUserData = async () => {
     try {
-      const userResponse = await axios.get("http://localhost:3000/login/success", {
-        withCredentials: true,
-      });
+      const userResponse = await axios.get(
+        `${import.meta.env.VITE_BASE_URL}/login/success`,
+        {
+          withCredentials: true,
+        }
+      );
       const { user } = userResponse.data;
       console.log(user);
       setUser(user);
     } catch (error) {
       console.error("Error fetching user data", error);
-      toast.error("Login Please!")
-    } 
+      toast.error("Login Please!");
+    }
   };
 
- 
   const fetchUsers = async () => {
-    if (!user._id) return; 
+    if (!user._id) return;
 
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
-      const response = await axios.get(`http://localhost:3000/api/v1/users/${user._id}`, {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
+      const response = await axios.get(
+        `${import.meta.env.VITE_BASE_URL}/api/v1/users/${user._id}`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
       setUsers(response.data);
       setShowUsers(true);
     } catch (error) {
       console.error("Error fetching users", error);
-      toast.error("You are not authorized to view this page")
+      toast.error("You are not authorized to view this page");
     } finally {
       setLoading(false);
     }
@@ -74,7 +79,7 @@ const UserList = () => {
             </thead>
             <tbody>
               {users.map((user) => (
-                <tr key={user._id} className='text-center'>
+                <tr key={user._id} className="text-center">
                   <td className="py-2 px-4 border-b">{user.username}</td>
                   <td className="py-2 px-4 border-b">{user.email}</td>
                   <td className="py-2 px-4 border-b">
