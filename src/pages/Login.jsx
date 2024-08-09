@@ -1,36 +1,11 @@
 
 import { GrGoogle } from "react-icons/gr";
 import { GOOGLE_AUTH_REDIRECT } from "../config";
-import axios from "axios";
-import { useEffect } from "react";
-import { useNavigate } from "react-router-dom";
+
 const Login = () => {
-  // Function to initiate Google login
   const googleLogin = () => {
     window.location.href = GOOGLE_AUTH_REDIRECT;
   };
-  const navigate = useNavigate();
-  // Check for JWT token in the URL and set it in local storage
-  const getUserData = async () => {
-    try {
-      const userResponse = await axios.get(
-        "http://localhost:3000/login/success",
-        {
-          withCredentials: true,
-        }
-      );
-      if(userResponse){
-        navigate("/home");
-      }
-      }
-      catch (error) {
-        console.error("Error fetching data", error);
-        
-      }
-    }
-    useEffect(() => {
-      getUserData();
-    }, []);
   return (
     <main className="h-screen w-full flex justify-center items-center bg-black">
       <div className="flex flex-col items-center rounded-xl border-gray-900 w-[600px] p-6 px-10 gap-5 text-white bg-gray-800">
