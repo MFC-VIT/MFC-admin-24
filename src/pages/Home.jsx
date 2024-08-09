@@ -26,7 +26,6 @@ const Home = () => {
     mediumLink: "",
     autheredDate: new Date(startDate).toLocaleDateString("en-GB")
   });
-
   const getUserData = async () => {
     try {
       const userResponse = await axios.get(
@@ -174,7 +173,7 @@ const Home = () => {
           <button
             onClick={() => {
               setIsEditing(false);
-              setNewBlog({ title: "", authorName: "", body: "" });
+              setNewBlog({ title: "", authorName: "", body: "", autheredDate: new Date(startDate).toLocaleDateString("en-GB") });
               setModalIsOpen(true);
             }}
             className="bg-blue-500 text-white py-2 px-4 rounded-full hover:bg-blue-700"
